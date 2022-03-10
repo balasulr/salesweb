@@ -19,13 +19,22 @@ public class CustomerController {
 		return new ResponseEntity<Iterable<Customer>>(customers, HttpStatus.OK);
 	}
 	
-	@GetMapping("{id}")
+	@GetMapping("{id}") // Get by Primary Key
 	public ResponseEntity<Customer> getCustomer(@PathVariable int id) {
 		var customer = custRepo.findById(id);
 		if(customer.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<Customer>(customer.get(), HttpStatus.OK);
+	}
+	
+	@GetMapping("code/{code}") // Method to read by Code that is similar to find by Primary Key
+	public ResponseEntity<Customer> getCustomerByCode(@PathVariable String code) {
+		var cust = custRepo.findByCode(code);
+		if(cust.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Customer>(cust.get(), HttpStatus.OK);
 	}
 	
 	@PostMapping // Add customer

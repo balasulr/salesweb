@@ -26,16 +26,46 @@ public class OrdersController {
 		return new ResponseEntity<Orders>(order.get(), HttpStatus.OK);
 	}
 	
+	@GetMapping("reviews") // Returns all Orders in review status
+	public ResponseEntity<Iterable<Orders>> getOrdersInReview() {
+		var orders = ordRepo.findByStatus("REVIEW"); // When did the ordRepo. the findByStatus was located from the OrderRepository
+		return new ResponseEntity<Iterable<Orders>>(orders, HttpStatus.OK);
+	}
+	
 	@PostMapping // Add order
 	public ResponseEntity<Orders> postOrder(@RequestBody Orders order) {
 		if(order == null || order.getId() != 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Bad request
 		}
+		order.setStatus("NEW");
 		var ord = ordRepo.save(order);
 		return new ResponseEntity<Orders>(ord, HttpStatus.CREATED);
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("rawtypes") // Have so that can use the ResponseEntity without the <> after the ResponseEntity
+	@PutMapping("review/{id}")
+	public ResponseEntity reviewOrder(@PathVariable int id, @RequestBody Orders order) {
+		var statusValue = (order.getTotal() <= 50) ? "APPROVED" : "REVIEW"; // ternery operator so if order is less than 50, approved
+		order.setStatus(statusValue);
+		return putOrder(id, order);
+	}
+	
+	@SuppressWarnings("rawtypes") // Have so that can use the ResponseEntity without the <> after the ResponseEntity
+	@PutMapping("approve/{id}")
+	public ResponseEntity approveOrder(@PathVariable int id, @RequestBody Orders order) {
+		order.setStatus("APPROVED");
+		return putOrder(id, order);
+	}
+	
+	@SuppressWarnings("rawtypes") // Have so that can use the ResponseEntity without the <> after the ResponseEntity
+	@PutMapping("reject/{id}")
+	public ResponseEntity rejectOrder(@PathVariable int id, @RequestBody Orders order) {
+		order.setStatus("REJECTED");
+		return putOrder(id, order);
+	}
+	
+	
+	@SuppressWarnings("rawtypes") // Have so that can use the ResponseEntity without the <> after the ResponseEntity
 	@PutMapping("{id}") // Update order
 	public ResponseEntity putOrder(@PathVariable int id, @RequestBody Orders order) { // Don't need the <>
 		if(order == null || order.getId() == 0) {
